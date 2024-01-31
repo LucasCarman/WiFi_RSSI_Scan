@@ -6,7 +6,6 @@ int RSSI_results;
 String ssid;
 
 int RSSI_normalized;
-int graphHeight;
 
 
 
@@ -36,11 +35,14 @@ Serial.begin(115200);  // Initialize serial communication for debugging
 void loop() {
   // put your main code here, to run repeatedly:
   M5Cardputer.update();
-  WiFi.scanNetworks();
   M5Cardputer.Display.clearDisplay();
   M5Cardputer.Display.setCursor(0,0);
+  WiFi.scanNetworks();
+  //Gathers the SSID from the 0th index network found in the previous scan
   ssid = WiFi.SSID(0);
+  //Gathers the RSSI of the 0th index network found in the scan
   RSSI_results = WiFi.RSSI(0);
+  //Logic for normalized RSSI is having -30db start at y=20 and continuing down where every 1 db change is 2 pixels on the screen. i.e. -30 * -2 = 60 - 40 = 20 or -70 * -2 = 140 - 40 = 100
   RSSI_normalized = (RSSI_results * -2) - 40;
   Serial.println(RSSI_results);
   M5Cardputer.Display.print("SSID: ");
@@ -56,6 +58,8 @@ void loop() {
   M5Cardputer.Display.drawFastVLine(171, 20, 221, GREEN);
   M5Cardputer.Display.drawFastVLine(68, 20, 222, GREEN);
   M5Cardputer.Display.drawFastVLine(172, 20, 221, GREEN);
+
+  //Nested loop for drawing the bar graph of the signal strength. Starts at the height of the normalized RSSI and goes all the way down to the bottom of the LCD
   for (int i=70; i<=170; i++) {
     for (int j=RSSI_normalized; j<=240; j++){
       M5Cardputer.Display.drawPixel(i, j, WHITE);
